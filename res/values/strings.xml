@@ -11,5 +11,7 @@
     </string-array>
 
     <string name="title_activity_preview_photo">Edit</string>
+    
+    <string name="action_logout_label">Log out</string>
 
 </resources>
