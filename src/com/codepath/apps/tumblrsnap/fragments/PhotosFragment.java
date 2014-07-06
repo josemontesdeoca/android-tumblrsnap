@@ -17,7 +17,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -116,6 +115,9 @@ public class PhotosFragment extends Fragment {
                 break;
             case R.id.action_use_existing: {
                 // Take the user to the gallery app
+                Intent PickPictureintent = new Intent(Intent.ACTION_PICK,
+                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                startActivityForResult(PickPictureintent, PICK_PHOTO_CODE);
             }
                 break;
         }
@@ -129,10 +131,14 @@ public class PhotosFragment extends Fragment {
                 // Call the method below to trigger the cropping
                 cropPhoto(photoUri);
             } else if (requestCode == PICK_PHOTO_CODE) {
-                // Extract the photo that was just picked from the gallery
-
-                // Call the method below to trigger the cropping
-                // cropPhoto(photoUri)
+                if (data != null) {
+                    photoUri = data.getData();
+                    // Call the method below to trigger the cropping
+                    cropPhoto(photoUri);
+                } else {
+                    Toast.makeText(getActivity(), "Oops! something went wrong...",
+                            Toast.LENGTH_SHORT).show();
+                }
             } else if (requestCode == CROP_PHOTO_CODE) {
                 photoBitmap = data.getParcelableExtra("data");
                 startPreviewPhotoActivity();
