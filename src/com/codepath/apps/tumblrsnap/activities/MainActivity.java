@@ -1,6 +1,6 @@
+
 package com.codepath.apps.tumblrsnap.activities;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -10,6 +10,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.codepath.apps.tumblrsnap.R;
+import com.codepath.apps.tumblrsnap.TumblrSnapApp;
 import com.codepath.apps.tumblrsnap.fragments.LoginFragment;
 import com.codepath.apps.tumblrsnap.fragments.LoginFragment.OnLoginHandler;
 import com.codepath.apps.tumblrsnap.fragments.PhotosFragment;
@@ -32,26 +33,21 @@ public class MainActivity extends FragmentActivity implements OnLoginHandler {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-
-        MenuItem settings = menu.findItem(R.id.action_settings);
-        if (User.currentUser() == null) {
-            settings.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
-        } else {
-            settings.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        if (User.currentUser() != null) {
+            // Inflate the menu; this adds items to the action bar if it is present.
+            getMenuInflater().inflate(R.menu.main, menu);
         }
-
         return true;
-    }
-
-    public void onSettingsButton(MenuItem menuItem) {
-        Intent i = new Intent(this, SettingsActivity.class);
-        startActivity(i);
     }
 
     @Override
     public void onLogin() {
+        updateFragments();
+    }
+
+    public void onLogoutMenu(MenuItem menuItem) {
+        TumblrSnapApp.getClient().clearAccessToken();
+        User.setCurrentUser(null);
         updateFragments();
     }
 
@@ -74,8 +70,10 @@ public class MainActivity extends FragmentActivity implements OnLoginHandler {
 
     @SuppressWarnings("rawtypes")
     private void showFragment(Class activeFragmentClass) {
-        Class[] fragmentClasses = new Class[] { LoginFragment.class,
-                PhotosFragment.class };
+        Class[] fragmentClasses = new Class[] {
+                LoginFragment.class,
+                PhotosFragment.class
+        };
         FragmentManager mgr = getSupportFragmentManager();
         FragmentTransaction transaction = mgr.beginTransaction();
         try {
@@ -85,7 +83,8 @@ public class MainActivity extends FragmentActivity implements OnLoginHandler {
                     if (fragment != null) {
                         transaction.show(fragment);
                     } else {
-                        transaction.add(R.id.frmContent, (Fragment) klass.newInstance(), klass.getName());
+                        transaction.add(R.id.frmContent, (Fragment) klass.newInstance(),
+                                klass.getName());
                     }
                 } else {
                     if (fragment != null) {
